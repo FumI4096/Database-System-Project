@@ -37,6 +37,7 @@ def login():
         P = (set.strftime("%p"))
         time = f"{H}:{M}:{S} {P}"
 
+        hello
         if result:
             id, first_name, last_name = result
             print("Result from stored procedure:", id)
