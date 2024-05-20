@@ -7,10 +7,10 @@ ui.set_default_color_theme("blue")
 
 app = ui.CTk()
 app.geometry("600x400")
-app.title("Log In")
+app.title("Voluntary Distribution")
 
 ####################
-def login():
+def cash():
     try:
         connection = pdb.connect('DRIVER={SQL Server};'+
                                 'Server=FX505DY\SQLEXPRESS;'+
@@ -22,7 +22,7 @@ def login():
         
         query = (f"SELECT ID, FirstName, LastName FROM Registration WHERE ID = {int(enterId.get())}")
         cursor.execute(query)
-        proc = ("EXEC spUpdateLogIN @ID = ?")
+        proc = ("EXEC spVoluntaryDist @ID = ?, @Cash = ?")
         
         result = cursor.fetchone()
         
@@ -39,27 +39,28 @@ def login():
         
         if result:
             id, first_name, last_name = result
-            print("Result from stored procedure:", id)
-            cursor.execute(proc, result[0])
-            attendanceOutput.configure(text=f"{first_name} {last_name}\n({date} {time})")
-            
+            cursor.execute(proc, (result[0], f"{float(enterCash.get())}"))
+            cashWork.configure(text=f"{first_name} {last_name}\n({date} {time})")
         else:
-            attendanceOutput.configure(text="Enter a valid ID")
+            cashWork.configure(text="Enter a valid ID")
         
-        attendanceOutput.after(6000, lambda: attendanceOutput.configure(text=""))
+        cashWork.after(6000, lambda: cashWork.configure(text=""))
     except pdb.Error as ex:
         print('Connection failed', ex)
-        attendanceOutput.configure(text="Error Occured")
-        attendanceOutput.after(6000, lambda: attendanceOutput.configure(text=""))
+        cashWork.configure(text="Error Occured")
+        cashWork.after(6000, lambda: cashWork.configure(text=""))
 
-attendanceOutput = ui.CTkLabel(app, text="")
-attendanceOutput.place(relx = 0.37, rely = 0.2)
+cashWork = ui.CTkLabel(app, text="")
+cashWork.place(relx = 0.33, rely = 0.79)
+
+enterCash = ui.CTkEntry(app, placeholder_text="Enter Cash", width=200, height=50, border_width=1, border_color="black")
+enterCash.place(relx = 0.34, rely = 0.3)
 
 enterId = ui.CTkEntry(app, placeholder_text="Enter ID", width=200, height=50, border_width=1, border_color="black")
 enterId.place(relx = 0.34, rely = 0.5)
 
-submit = ui.CTkButton(app, text="SUBMIT", fg_color="blue", width=100, height=40, command=login)
-submit.place(relx = 0.34, rely = 0.7)
 
+submit = ui.CTkButton(app, text="SUBMIT", fg_color="blue", width=100, height=40, command=cash)
+submit.place(relx = 0.42, rely = 0.7)
 
 app.mainloop()
